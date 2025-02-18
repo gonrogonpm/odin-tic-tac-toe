@@ -1,5 +1,6 @@
 const ROWS = 3;
 const COLS = 3;
+const TIE  = -1;
 const EMPTY = 0;
 const PLAYER1 = 1;
 const PLAYER2 = 2;
@@ -93,15 +94,125 @@ const gameboard = (function () {
     return {getCell, setCell, reset, checkWinner, checkFull, print};
 })();
 
-function createPlayer() {
-    return {};
+function createPlayer(player) {
+    if (player !== PLAYER1 && player !== PLAYER2) {
+        throw Error("Invalid player");
+    }
+
+    const id = player;
+
+    const getId = () => id;
+
+    const getMove = (board) => { 
+        throw Error("getMove must be implemented by a subclass");
+    }
+
+    const handleUserInput = (row, col) => {
+        throw Error("handleUserInput must be implemented by a subclass");
+    }
+
+    const print = () => {
+        console.log(`Player: ${id}`);
+    }
+
+    return {getId, getMove, handleUserInput, print};
 }
 
-function createHumanPlayer() {
-    return {};
+function createHumanPlayer(player) {
+    const base = createPlayer(player);
+
+    let move = null;
+
+    const getMove = (board) => {
+        if (move === null) {
+            return null;
+        }
+
+        const copy = move;
+        move = null;
+
+        return copy;
+    }
+
+    const handleUserInput = (row, col) => {
+        if (row < 0 || row >= ROWS) { throw Error("Row out of bounds"); }
+        if (col < 0 || col >= COLS) { throw Error("Col out of bounds"); }
+
+        move = [row, col];
+    }
+
+    const print = () => {
+        console.log(`Player: ${base.getId()} (human)`);
+    }
+
+    return Object.assign({}, base, { getMove, handleUserInput, print });
 }
 
-gameboard.setCell(0, 0, PLAYER1);
-gameboard.setCell(2, 1, PLAYER2);
-gameboard.print();
-console.log(gameboard.checkFull());
+function createMatch(board, player1, player2) {
+    const players = [player1, player2];
+
+    let currentPlayerIndex = 0;
+
+    const getCurrentPlayer = () => players[currentPlayerIndex];
+        
+    const setNextPlayer = () => currentPlayerIndex = (currentPlayerIndex + 1) % 2;
+
+    const handleUserInput = (row, col) => {
+        getCurrentPlayer().handleUserInput(row, col);
+    }
+
+    const executeMove = () => {
+        const player = getCurrentPlayer();
+        const move   = player.getMove(board);
+
+        if (move === null) {
+            return false;
+        }
+
+        board.setCell(move[0], move[1], player.getId());
+        board.print();
+        return true;
+    }
+
+    const checkGameStatus = () => {
+        const winner = board.checkWinner();
+        if (winner !== 0) {
+            return winner;
+        }
+
+        if (board.checkFull()) {
+            return TIE;
+        }
+
+        return EMPTY;
+    }
+
+    const doStep = () => {
+        executeMove();
+        setNextPlayer();
+        return checkGameStatus();
+    }
+
+    return { handleUserInput, doStep };
+};
+
+let player1 = createHumanPlayer(PLAYER1);
+let player2 = createHumanPlayer(PLAYER2);
+let match = createMatch(gameboard, player1, player2);
+
+const testMovements = [
+    [0, 0], [1, 1], [0, 1], [2, 0], [0, 2]
+];
+
+(function test() {
+for (let pair of testMovements) {
+    match.handleUserInput(pair[0], pair[1]);
+    const stepResult = match.doStep();
+
+    switch (stepResult) {
+        case PLAYER1: console.log("Player 1 wins!"); return;
+        case PLAYER2: console.log("Player 2 wins!"); return;
+        case TIE:     console.log("Tie!"); return;
+    }
+}
+})();
