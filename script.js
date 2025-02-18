@@ -196,6 +196,35 @@ function createMatch(board, player1, player2) {
     return { handleUserInput, doStep };
 };
 
+const renderer = (function() {
+    const elemGame  = document.querySelector("#game");
+    const elemState = document.querySelector("#game-state");
+    const elemBoard = document.querySelector("#board");
+    
+    const syncPage = (board, result) => {
+        const cells = elemBoard.querySelectorAll(".cell");
+
+        console.log(cells);
+        cells.forEach(cell => {
+            const row = Number(cell.dataset.row);
+            const col = Number(cell.dataset.col);
+            const symbol = SYMBOLS[board.getCell(row, col)];
+
+            cell.textContent = symbol;
+        });
+
+
+        switch (result) {
+            case PLAYER1: elemState.textContent = "Player 1 wins!"; break;
+            case PLAYER2: elemState.textContent = "Player 2 wins!"; break;
+            case TIE:     elemState.textContent = "Tie"; break;
+            default:      elemState.textContent = "\u00A0"; break;
+        }
+    }
+
+    return { syncPage };
+})();
+
 let player1 = createHumanPlayer(PLAYER1);
 let player2 = createHumanPlayer(PLAYER2);
 let match = createMatch(gameboard, player1, player2);
@@ -204,15 +233,24 @@ const testMovements = [
     [0, 0], [1, 1], [0, 1], [2, 0], [0, 2]
 ];
 
-(function test() {
-for (let pair of testMovements) {
-    match.handleUserInput(pair[0], pair[1]);
-    const stepResult = match.doStep();
+(function setup() {
+    let step = 0;
 
-    switch (stepResult) {
-        case PLAYER1: console.log("Player 1 wins!"); return;
-        case PLAYER2: console.log("Player 2 wins!"); return;
-        case TIE:     console.log("Tie!"); return;
-    }
-}
+    const button = document.querySelector("#step");
+    button.addEventListener("click", () => {
+        if (step >= testMovements.length) {
+            return;
+        }
+
+        match.handleUserInput(testMovements[step][0], testMovements[step][1]);
+        const stepResult = match.doStep();
+
+        renderer.syncPage(gameboard, stepResult);
+
+        step++;
+        if (step >= testMovements.length) {
+            button.disabled    = true;
+            button.textContent = "No more steps";
+        }
+    });
 })();

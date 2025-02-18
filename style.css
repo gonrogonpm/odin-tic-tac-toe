@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --color: #d1d7e0;
+    --background: rgb(21, 27, 35);
+    --background-modal: rgb(21, 27, 35, 0.5);
+    --buttons-radius: 10px;
+    --success: #4c9e52;
+    --failure: #e5534b;
+    --card-gap: 20px;
+    --card-radius: 10px;
+    --card-border: #30363d;
+    --card-background: #212830;2
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    background-color: var(--background);
+    font-family: "Roboto", sans-serif;
+    font-size: 16px;
+    color: var(--color);
+}
+
+button {
+    background-color: var(--card-background);
+    border: 1px solid var(--card-border);
+    border-radius: var(--buttons-radius);
+    color: var(--card-color);
+    font-weight: bold;
+    padding: 0.4rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+button:hover {
+    background-color: var(--card-hover);
+    cursor: pointer;
+}
+
+.main {
+    max-width: 1400px;
+    margin: auto;
+}
+
+.main h1 {
+    text-align: center;
+    padding: 1rem 0;
+    background-color: var(--card-background);
+    color: var(--color);
+    max-width: 400px;
+    margin: auto;
+    border-radius: 10px;
+    margin: 1rem auto;
+}
+
+#game {
+    max-width: 400px;
+    margin: auto;
+}
+
+#game-state {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+}
+
+#board {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.cell {
+    font-size: 80px;
+    text-align: center;
+    align-content: center;
+    aspect-ratio: 1;
+    background-color: var(--card-background);
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+}
+
+#game .controls {
+    margin-top: 1rem;
+}
