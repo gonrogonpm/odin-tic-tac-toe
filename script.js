@@ -54,6 +54,8 @@ const gameboard = (function () {
         return matrix.every(row => row.every(cell => cell !== EMPTY));
     }
 
+    const isEmpty = (row, col) => getCell(row, col) === EMPTY;
+
     const getCell = (row, col) => {
         if (row < 0 || row >= ROWS) { throw Error("Row out of bounds"); }
         if (col < 0 || col >= COLS) { throw Error("Col out of bounds"); }
@@ -92,7 +94,7 @@ const gameboard = (function () {
         console.log(str);
     }
 
-    return {getCell, setCell, reset, checkWinner, checkFull, print};
+    return {isEmpty, getCell, setCell, reset, checkWinner, checkFull, print};
 })();
 
 function createPlayer(player) {
@@ -159,6 +161,13 @@ function createMatch(board, player1, player2) {
     const setNextPlayer = () => activePlayerIndex = (activePlayerIndex + 1) % 2;
 
     const handleUserInput = (row, col) => {
+        if (row < 0 || row > ROWS) { return; }
+        if (col < 0 || col > COLS) { return; }
+
+        if (!board.isEmpty(row, col)) {
+            return;
+        }
+
         getActivePlayer().handleUserInput(row, col);
     }
 
@@ -188,7 +197,11 @@ function createMatch(board, player1, player2) {
     }
 
     const doStep = () => {
-        executeMove();
+        // Try to execute a movement.
+        if (!executeMove()) {
+            return EMPTY;
+        }
+
         setNextPlayer();
         return checkGameStatus();
     }
