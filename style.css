@@ -10,7 +10,7 @@
     --card-gap: 20px;
     --card-radius: 10px;
     --card-border: #30363d;
-    --card-background: #212830;2
+    --card-background: #212830;
 }
 
 * {
@@ -48,15 +48,28 @@ button:hover {
     margin: auto;
 }
 
-.main h1 {
-    text-align: center;
-    padding: 1rem 0;
-    background-color: var(--card-background);
-    color: var(--color);
+.logo {
     max-width: 400px;
-    margin: auto;
-    border-radius: 10px;
     margin: 1rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    color: var(--color);
+    background-color: var(--card-background);
+    border-radius: 10px;
+}
+
+.logo svg {
+    fill: var(--color);
+    width: 2.5rem;
+    height: 2.5rem;
+    aspect-ratio: 1;
+}
+
+.logo h1 {
+    text-align: center;
 }
 
 #game {
@@ -69,6 +82,7 @@ button:hover {
     margin-bottom: 1rem;
     border: 1px solid var(--card-border);
     border-radius: var(--card-radius);
+    font-weight: bold;
 }
 
 #board {
@@ -86,6 +100,14 @@ button:hover {
     background-color: var(--card-background);
     border: 1px solid var(--card-border);
     border-radius: var(--card-radius);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell img {
+    width: 80%;
+    height: 80%;
 }
 
 #game .controls {

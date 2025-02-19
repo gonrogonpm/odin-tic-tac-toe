@@ -5,6 +5,7 @@ const EMPTY = 0;
 const PLAYER1 = 1;
 const PLAYER2 = 2;
 const SYMBOLS = { [EMPTY]: " ", [PLAYER1]: "O", [PLAYER2]: "X" };
+const IMAGES = { [PLAYER1]: "o.svg", [PLAYER2]: "x.svg" }
 
 const gameboard = (function () {
     const matrix = Array.from({ length: ROWS }, () => new Array(COLS).fill(EMPTY));
@@ -208,9 +209,14 @@ const renderer = (function() {
         cells.forEach(cell => {
             const row = Number(cell.dataset.row);
             const col = Number(cell.dataset.col);
-            const symbol = SYMBOLS[board.getCell(row, col)];
+            const val = board.getCell(row, col);
 
-            cell.textContent = symbol;
+            if (IMAGES[val]) {
+                cell.innerHTML = `<img src="images/${IMAGES[val]}" alt="${SYMBOLS[val]}" width="20" height="20">`;
+            }
+            else {
+                cell.textContent = "";
+            }
         });
 
 
