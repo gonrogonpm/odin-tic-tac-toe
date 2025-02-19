@@ -171,7 +171,6 @@ function createMatch(board, player1, player2) {
         }
 
         board.setCell(move[0], move[1], player.getId());
-        board.print();
         return true;
     }
 
@@ -235,30 +234,42 @@ let player1 = createHumanPlayer(PLAYER1);
 let player2 = createHumanPlayer(PLAYER2);
 let match = createMatch(gameboard, player1, player2);
 
-const testMovements = [
-    [0, 0], [1, 1], [0, 1], [2, 0], [0, 2]
-];
+(function setup(match, renderer) {
+    const elemBoard = document.querySelector("#board");
+    if (!elemBoard) {
+        console.error("Board element not found");
+        return;
+    }
 
-(function setup() {
-    let step = 0;
+    const start = () => {
+        elemBoard.addEventListener("click", handleCellClick);
+        renderer.syncPage(match, gameboard, null);
+    }
 
-    renderer.syncPage(match, gameboard, "");
+    const finish = () => {
+        elemBoard.removeEventListener("click", handleCellClick);
+    }
 
-    const button = document.querySelector("#step");
-    button.addEventListener("click", () => {
-        if (step >= testMovements.length) {
+    const handleCellClick = (event) => {
+        let cell = event.target.closest(".cell");
+        console.log("Click");
+        console.dir(cell);
+        if (!cell) {
             return;
         }
 
-        match.handleUserInput(testMovements[step][0], testMovements[step][1]);
-        const stepResult = match.doStep();
+        const row = Number(cell.dataset.row);
+        const col = Number(cell.dataset.col);
 
+        match.handleUserInput(row, col);
+        const stepResult = match.doStep();
+        // Render the result of the last step.
         renderer.syncPage(match, gameboard, stepResult);
 
-        step++;
-        if (step >= testMovements.length) {
-            button.disabled    = true;
-            button.textContent = "No more steps";
+        if (stepResult !== EMPTY) {
+            finish();
         }
-    });
-})();
+    }
+
+   start();
+})(match, renderer);
