@@ -152,18 +152,18 @@ function createHumanPlayer(player) {
 function createMatch(board, player1, player2) {
     const players = [player1, player2];
 
-    let currentPlayerIndex = 0;
+    let activePlayerIndex = 0;
 
-    const getCurrentPlayer = () => players[currentPlayerIndex];
+    const getActivePlayer = () => players[activePlayerIndex];
         
-    const setNextPlayer = () => currentPlayerIndex = (currentPlayerIndex + 1) % 2;
+    const setNextPlayer = () => activePlayerIndex = (activePlayerIndex + 1) % 2;
 
     const handleUserInput = (row, col) => {
-        getCurrentPlayer().handleUserInput(row, col);
+        getActivePlayer().handleUserInput(row, col);
     }
 
     const executeMove = () => {
-        const player = getCurrentPlayer();
+        const player = getActivePlayer();
         const move   = player.getMove(board);
 
         if (move === null) {
