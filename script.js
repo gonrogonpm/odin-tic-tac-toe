@@ -194,7 +194,7 @@ function createMatch(board, player1, player2) {
         return checkGameStatus();
     }
 
-    return { handleUserInput, doStep };
+    return { getActivePlayer, handleUserInput, doStep };
 };
 
 const renderer = (function() {
@@ -202,10 +202,11 @@ const renderer = (function() {
     const elemState = document.querySelector("#game-state");
     const elemBoard = document.querySelector("#board");
     
-    const syncPage = (board, result) => {
+    const syncPage = (match, board, result) => {
         const cells = elemBoard.querySelectorAll(".cell");
 
-        console.log(cells);
+        elemState.textContent = `Turn of player ${match.getActivePlayer().getId()}`;
+
         cells.forEach(cell => {
             const row = Number(cell.dataset.row);
             const col = Number(cell.dataset.col);
@@ -224,7 +225,6 @@ const renderer = (function() {
             case PLAYER1: elemState.textContent = "Player 1 wins!"; break;
             case PLAYER2: elemState.textContent = "Player 2 wins!"; break;
             case TIE:     elemState.textContent = "Tie"; break;
-            default:      elemState.textContent = "\u00A0"; break;
         }
     }
 
@@ -242,6 +242,8 @@ const testMovements = [
 (function setup() {
     let step = 0;
 
+    renderer.syncPage(match, gameboard, "");
+
     const button = document.querySelector("#step");
     button.addEventListener("click", () => {
         if (step >= testMovements.length) {
@@ -251,7 +253,7 @@ const testMovements = [
         match.handleUserInput(testMovements[step][0], testMovements[step][1]);
         const stepResult = match.doStep();
 
-        renderer.syncPage(gameboard, stepResult);
+        renderer.syncPage(match, gameboard, stepResult);
 
         step++;
         if (step >= testMovements.length) {
