@@ -210,7 +210,6 @@ function createMatch(board, player1, player2) {
 };
 
 const renderer = (function() {
-    const elemGame  = document.querySelector("#game");
     const elemState = document.querySelector("#game-state");
     const elemBoard = document.querySelector("#board");
     

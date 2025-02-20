@@ -2,6 +2,7 @@
 
 :root {
     --color: #d1d7e0;
+    --disabled: #434d5a;
     --background: rgb(21, 27, 35);
     --background-modal: rgb(21, 27, 35, 0.5);
     --buttons-radius: 10px;
@@ -43,14 +44,26 @@ button:hover {
     cursor: pointer;
 }
 
+button:disabled {
+    color: var(--disabled);
+}
+
+button:disabled:hover {
+    background-color: var(--card-background);
+    cursor:auto;
+}
+
 .main {
-    max-width: 1400px;
+    max-width: calc(600px + 2rem);
     margin: auto;
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr;
+    gap: 1rem;
 }
 
 .logo {
-    max-width: 400px;
-    margin: 1rem auto;
+    margin-top: 1rem;
+    grid-column: 2 / 3;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -58,7 +71,7 @@ button:hover {
     padding: 1rem;
     color: var(--color);
     background-color: var(--card-background);
-    border-radius: 10px;
+    border-radius: var(--card-radius);
 }
 
 .logo svg {
@@ -72,20 +85,116 @@ button:hover {
     text-align: center;
 }
 
-#game {
-    max-width: 400px;
-    margin: auto;
-}
-
-#game-state {
-    padding: 1rem;
-    margin-bottom: 1rem;
+.game-state {
+    grid-column: 2 / 3;
     border: 1px solid var(--card-border);
     border-radius: var(--card-radius);
     font-weight: bold;
 }
 
+.game-state .round { 
+    display: inline-block;
+    padding: 1rem;
+    background-color: var(--card-background);
+    border-radius: var(--card-radius) 0 0 var(--card-radius);
+    border-right: 1px solid var(--card-border);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.game-state .state {
+    padding: 1rem;
+}
+
+#player-1 {
+    grid-column: 1 / 2;
+    grid-row-start: 3;
+    writing-mode: sideways-lr;
+    justify-content: center;
+}
+
+#player-2 {
+    grid-column: 3 / 4;
+    grid-row-start: 3;
+    writing-mode: sideways-rl;
+    justify-content: center;
+}
+
+.player-area {
+    --player-font-size: max(20px, min(5vw, 38px));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+}
+
+.player-area-left {
+    grid-column: 1 / 2;
+    grid-row-start: 3;
+}
+
+.player-area-right {
+    grid-column: 3 / 4;
+    grid-row-start: 3;
+}
+
+.player-symbol, .player-score {
+    width: 100%;
+    text-align: center;
+}
+
+.player-symbol {
+    padding: 1rem;
+    background-color: var(--card-background);
+    border-bottom: 1px solid var(--card-border);
+    border-top-left-radius: var(--card-radius);
+    border-top-right-radius: var(--card-radius);
+}
+
+.player-symbol img {
+    width: 70%;
+    height: auto;
+    aspect-ratio: 1;
+}
+
+.player-name {
+    padding: 0.5rem;
+    font-size: var(--player-font-size);
+}
+
+.player-left {
+    writing-mode: sideways-lr;
+}
+
+.player-right {
+    writing-mode: sideways-rl;
+}
+
+.player-score .title, .player-score .value {
+    padding: 0.5rem 0;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.player-score .title {
+    background-color: var(--card-background);
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.player-score .value {
+    font-size: calc(var(--player-font-size) * 0.8);
+}
+
 #board {
+    grid-column: 2 / 3;
+    width: 100%;
+    aspect-ratio: 1;
     display: grid;
     gap: 0.5rem;
     grid-template-rows: 1fr 1fr 1fr;
@@ -93,7 +202,6 @@ button:hover {
 }
 
 .cell {
-    font-size: 80px;
     text-align: center;
     align-content: center;
     aspect-ratio: 1;
@@ -110,6 +218,16 @@ button:hover {
     height: 80%;
 }
 
-#game .controls {
-    margin-top: 1rem;
+.controls {
+    grid-column: 2 / 3;
+    display: flex;
+    gap: 1rem;
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+    padding: 0.5rem;
+}
+
+.controls button {
+    padding: 1rem;
+    text-transform: uppercase;
 }
