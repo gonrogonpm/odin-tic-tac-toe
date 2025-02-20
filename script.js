@@ -7,7 +7,7 @@ const PLAYER2 = 2;
 const SYMBOLS = { [EMPTY]: " ", [PLAYER1]: "O", [PLAYER2]: "X" };
 const IMAGES = { [PLAYER1]: "o.svg", [PLAYER2]: "x.svg" }
 
-const gameboard = (function () {
+function createGameboard() {
     const matrix = Array.from({ length: ROWS }, () => new Array(COLS).fill(EMPTY));
 
     const getRow = (row) => matrix[row];
@@ -95,16 +95,24 @@ const gameboard = (function () {
     }
 
     return {isEmpty, getCell, setCell, reset, checkWinner, checkFull, print};
-})();
+};
 
-function createPlayer(player) {
+function createPlayer(player, name) {
     if (player !== PLAYER1 && player !== PLAYER2) {
         throw Error("Invalid player");
     }
 
     const id = player;
 
+    let score = 0;
+
     const getId = () => id;
+
+    const getScore = () => score;
+
+    const addScore = () => score++;
+
+    const getName = () => name;
 
     const getMove = (board) => { 
         throw Error("getMove must be implemented by a subclass");
@@ -118,11 +126,11 @@ function createPlayer(player) {
         console.log(`Player: ${id}`);
     }
 
-    return {getId, getMove, handleUserInput, print};
+    return {getId, getScore, addScore, getName, getMove, handleUserInput, print};
 }
 
-function createHumanPlayer(player) {
-    const base = createPlayer(player);
+function createHumanPlayer(player, name) {
+    const base = createPlayer(player, name);
 
     let move = null;
 
@@ -209,19 +217,82 @@ function createMatch(board, player1, player2) {
     return { getActivePlayer, handleUserInput, doStep };
 };
 
-const renderer = (function() {
+function createGame(player1, player2) {
+    let gameboard = createGameboard();
+    let match = createMatch(gameboard, player1, player2);
+    let round = 0;
+    let running = false;
+    let lastResult = null;
+
+    const getGameboard = () => gameboard;
+
+    const getRound = () => round;
+
+    const getPlayer1Name = () => player1.getName();
+
+    const getPlayer2Name = () => player2.getName();
+
+    const getPlayer1Score = () => player1.getScore();
+
+    const getPlayer2Score = () =>  player2.getScore();
+
+    const getActivePlayerName = () => match.getActivePlayer().getId() === player1.getId() ? getPlayer1Name() : getPlayer2Name();
+
+    const getLastMovementResult = () => lastResult;
+
+    const startNextRound = () => {
+        if (running) {
+            return;
+        }
+
+        gameboard.reset();
+        match = createMatch(gameboard, player1, player2);
+        round++;
+        running = true;
+    }
+
+    const handleUserInput = (row, col) => {
+        if (!running) {
+            return;
+        }
+
+        match.handleUserInput(row, col);
+        lastResult = match.doStep();
+
+        switch (lastResult) {
+            case PLAYER1: player1.addScore(); running = false; break;
+            case PLAYER2: player2.addScore(); running = false; break;
+            case TIE:     running = false; break;
+            default:      running = true;  break;
+        }
+    }
+
+    return { getGameboard, getRound, getPlayer1Name, getPlayer1Score, getPlayer2Name, getPlayer2Score, getActivePlayerName, getLastMovementResult, startNextRound, handleUserInput }
+}
+
+function createRenderer() {
+    const elemRound = document.querySelector("#game-round");
     const elemState = document.querySelector("#game-state");
     const elemBoard = document.querySelector("#board");
+    const elemPlayer1Name  = document.querySelector("#player-1-name");
+    const elemPlayer1Score = document.querySelector("#player-1-score");
+    const elemPlayer2Name  = document.querySelector("#player-2-name");
+    const elemPlayer2Score = document.querySelector("#player-2-score");
     
-    const syncPage = (match, board, result) => {
+    const syncPage = (game) => {
         const cells = elemBoard.querySelectorAll(".cell");
 
-        elemState.textContent = `Turn of player ${match.getActivePlayer().getId()}`;
-
+        elemRound.textContent = `Round ${game.getRound()}`;
+        elemState.textContent = `Turn of player ${game.getActivePlayerName()}`;
+        elemPlayer1Name .textContent = game.getPlayer1Name();
+        elemPlayer1Score.textContent = game.getPlayer1Score();
+        elemPlayer2Name .textContent = game.getPlayer2Name();
+        elemPlayer2Score.textContent = game.getPlayer2Score();
+        
         cells.forEach(cell => {
             const row = Number(cell.dataset.row);
             const col = Number(cell.dataset.col);
-            const val = board.getCell(row, col);
+            const val = game.getGameboard().getCell(row, col);
 
             if (IMAGES[val]) {
                 cell.innerHTML = `<img src="images/${IMAGES[val]}" alt="${SYMBOLS[val]}" width="20" height="20">`;
@@ -231,8 +302,7 @@ const renderer = (function() {
             }
         });
 
-
-        switch (result) {
+        switch (game.getLastMovementResult()) {
             case PLAYER1: elemState.textContent = "Player 1 wins!"; break;
             case PLAYER2: elemState.textContent = "Player 2 wins!"; break;
             case TIE:     elemState.textContent = "Tie"; break;
@@ -240,32 +310,50 @@ const renderer = (function() {
     }
 
     return { syncPage };
-})();
+};
 
-let player1 = createHumanPlayer(PLAYER1);
-let player2 = createHumanPlayer(PLAYER2);
-let match = createMatch(gameboard, player1, player2);
 
-(function setup(match, renderer) {
+(function setup() {
     const elemBoard = document.querySelector("#board");
     if (!elemBoard) {
         console.error("Board element not found");
         return;
     }
 
+    const elemButtonNextRound = document.querySelector("#button-next-round");
+    if (!elemButtonNextRound) {
+        console.error("Next round button not found");
+        return;
+    }
+
+    const player1 = createHumanPlayer(PLAYER1, "Foo");
+    const player2 = createHumanPlayer(PLAYER2, "Bar");
+    const game = createGame(player1, player2);
+    const renderer = createRenderer();
+
+    console.log(player1.getName());
+    console.log(game.getPlayer1Name());
+
     const start = () => {
         elemBoard.addEventListener("click", handleCellClick);
-        renderer.syncPage(match, gameboard, null);
+        elemButtonNextRound.disabled = true;
+        elemButtonNextRound.removeEventListener("click", handleNextRoundClick);
+        game.startNextRound();
+        renderer.syncPage(game);
     }
 
     const finish = () => {
         elemBoard.removeEventListener("click", handleCellClick);
+        elemButtonNextRound.disabled = false;
+        elemButtonNextRound.addEventListener("click", handleNextRoundClick);
     }
 
-    const handleCellClick = (event) => {
+    const handleNextRoundClick = event => {
+        start();
+    }
+
+    const handleCellClick = event => {
         let cell = event.target.closest(".cell");
-        console.log("Click");
-        console.dir(cell);
         if (!cell) {
             return;
         }
@@ -273,15 +361,13 @@ let match = createMatch(gameboard, player1, player2);
         const row = Number(cell.dataset.row);
         const col = Number(cell.dataset.col);
 
-        match.handleUserInput(row, col);
-        const stepResult = match.doStep();
-        // Render the result of the last step.
-        renderer.syncPage(match, gameboard, stepResult);
+        game.handleUserInput(row, col);
+        renderer.syncPage(game);
 
-        if (stepResult !== EMPTY) {
+        if (game.getLastMovementResult() !== EMPTY) {
             finish();
         }
     }
 
-   start();
-})(match, renderer);
+    start();
+})();
