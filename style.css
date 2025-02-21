@@ -2,6 +2,7 @@
 
 :root {
     --color: #d1d7e0;
+    --accent: #c49737;
     --disabled: #434d5a;
     --background: rgb(21, 27, 35);
     --background-modal: rgb(21, 27, 35, 0.5);
@@ -107,6 +108,22 @@ button:disabled:hover {
     padding: 1rem;
 }
 
+.game-state .state em {
+    font-style: normal;
+}
+
+.game-state .state em.turn {
+    color: var(--accent);
+}
+
+.game-state .state em.winner {
+    color: var(--success);
+}
+
+.game-state .state em.tie {
+    color: var(--failure);
+}
+
 #player-1 {
     grid-column: 1 / 2;
     grid-row-start: 3;
@@ -173,6 +190,14 @@ button:disabled:hover {
     writing-mode: sideways-rl;
 }
 
+.player-active {
+    color: var(--accent);
+}
+
+.player-winner {
+    color: var(--success);
+}
+
 .player-score .title, .player-score .value {
     padding: 0.5rem 0;
     font-weight: bold;
@@ -221,6 +246,8 @@ button:disabled:hover {
 .win {
     border: 1px solid var(--success);
 }
+
+
 
 .controls {
     grid-column: 2 / 3;

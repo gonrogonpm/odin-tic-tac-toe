@@ -231,7 +231,7 @@ function createMatch(board, player1, player2) {
     const doStep = () => {
         // Try to execute a movement.
         if (!executeMove()) {
-            return EMPTY;
+            return null;
         }
 
         setNextPlayer();
@@ -260,9 +260,13 @@ function createGame(player1, player2) {
 
     const getPlayer2Score = () =>  player2.getScore();
 
+    const getActivePlayerId = () => match.getActivePlayer().getId();
+
     const getActivePlayerName = () => match.getActivePlayer().getId() === player1.getId() ? getPlayer1Name() : getPlayer2Name();
 
     const getLastMovementResult = () => lastResult;
+
+    const isRoundFinished = () => lastResult !== null && lastResult.winner != EMPTY;
 
     const startNextRound = () => {
         if (running) {
@@ -283,6 +287,10 @@ function createGame(player1, player2) {
 
         match.handleUserInput(row, col);
         lastResult = match.doStep();
+        // Do nothing if the movement is invalid.
+        if (lastResult === null) {
+            return;
+        }
 
         switch (lastResult.winner) {
             case PLAYER1: player1.addScore(); running = false; break;
@@ -297,7 +305,10 @@ function createGame(player1, player2) {
         }
     }
 
-    return { getGameboard, getRound, getPlayer1Name, getPlayer1Score, getPlayer2Name, getPlayer2Score, getActivePlayerName, getLastMovementResult, startNextRound, handleUserInput }
+    return { 
+        getGameboard, getRound, getPlayer1Name, getPlayer1Score, getPlayer2Name, getPlayer2Score, 
+        getActivePlayerId, getActivePlayerName, getLastMovementResult, isRoundFinished, startNextRound, handleUserInput 
+    }
 }
 
 function createRenderer() {
@@ -309,15 +320,38 @@ function createRenderer() {
     const elemPlayer2Name  = document.querySelector("#player-2-name");
     const elemPlayer2Score = document.querySelector("#player-2-score");
     
+    const createTurnTag = (name) => createStatusTag(name, "turn");
+
+    const createWinnerTag = (name) => createStatusTag(name, "winner");
+
+    const createTieTag = () => createStatusTag("Tie", "tie");
+
+    const createStatusTag = (text, cssClass) => {
+        const elem = document.createElement("em");
+        elem.classList.add(cssClass);
+        elem.textContent = text;
+        return elem;
+    }
+
     const syncPage = (game) => {
         const cells = elemBoard.querySelectorAll(".cell");
 
         elemRound.textContent = `Round ${game.getRound()}`;
-        elemState.textContent = `Turn of player ${game.getActivePlayerName()}`;
+        elemState.replaceChildren("Turn of player ", createTurnTag(game.getActivePlayerName()));
         elemPlayer1Name .textContent = game.getPlayer1Name();
         elemPlayer1Score.textContent = game.getPlayer1Score();
         elemPlayer2Name .textContent = game.getPlayer2Name();
         elemPlayer2Score.textContent = game.getPlayer2Score();
+        
+        elemPlayer2Name.classList.remove("player-active", "player-winner");
+        elemPlayer1Name.classList.remove("player-active", "player-winner");
+
+        if (game.getActivePlayerId() == PLAYER1) {
+            elemPlayer1Name.classList.add("player-active");
+        } 
+        else {
+            elemPlayer2Name.classList.add("player-active");
+        }
         
         cells.forEach(cell => {
             const row = Number(cell.dataset.row);
@@ -337,9 +371,15 @@ function createRenderer() {
         if (lastResult !== null) {
             switch (lastResult.winner)
             {
-                case PLAYER1: elemState.textContent = `${game.getPlayer1Name()} wins!`; break;
-                case PLAYER2: elemState.textContent = `${game.getPlayer2Name()} wins!`; break;
-                case TIE:     elemState.textContent = "Tie"; break;
+                case PLAYER1:
+                    elemState.replaceChildren(createWinnerTag(game.getPlayer1Name()), " wins!");
+                    elemPlayer1Name.classList.add("player-winner");
+                    break;
+                case PLAYER2:
+                    elemState.replaceChildren(createWinnerTag(game.getPlayer2Name()), " wins!");
+                    elemPlayer2Name.classList.add("player-winner");
+                    break;
+                case TIE:     elemState.replaceChildren(createTieTag()); break;
             }
 
             if (lastResult.line) {
@@ -381,9 +421,6 @@ function createRenderer() {
     const game = createGame(player1, player2);
     const renderer = createRenderer();
 
-    console.log(player1.getName());
-    console.log(game.getPlayer1Name());
-
     const start = () => {
         elemBoard.addEventListener("click", handleCellClick);
         elemButtonNextRound.disabled = true;
@@ -414,7 +451,7 @@ function createRenderer() {
         game.handleUserInput(row, col);
         renderer.syncPage(game);
 
-        if (game.getLastMovementResult().winner !== EMPTY) {
+        if (game.isRoundFinished()) {
             finish();
         }
     }
