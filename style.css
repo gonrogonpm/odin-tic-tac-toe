@@ -218,6 +218,10 @@ button:disabled:hover {
     height: 80%;
 }
 
+.win {
+    border: 1px solid var(--success);
+}
+
 .controls {
     grid-column: 2 / 3;
     display: flex;

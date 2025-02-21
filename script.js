@@ -7,6 +7,30 @@ const PLAYER2 = 2;
 const SYMBOLS = { [EMPTY]: " ", [PLAYER1]: "O", [PLAYER2]: "X" };
 const IMAGES = { [PLAYER1]: "o.svg", [PLAYER2]: "x.svg" }
 
+const winnerFactory = (function () {
+    const createNoResult = () => {
+        return { winner: EMPTY, line: null }
+    }
+
+    const createTie = () => {
+        return { winner: TIE, line: null }
+    }
+
+    const createFromRow = (winner, row) => {
+        return create(winner, [row, 0], [row, 1], [row, 2]);
+    }
+
+    const createFromCol = (winner, col) => {
+        return create(winner, [0, col], [1, col], [2, col]);
+    }
+
+    const create = (winner, c0, c1, c2) => {
+        return { winner: winner, line: [c0, c1, c2] };
+    }
+
+    return { createNoResult, createTie, createFromRow, createFromCol, create };
+})();
+
 function createGameboard() {
     const matrix = Array.from({ length: ROWS }, () => new Array(COLS).fill(EMPTY));
 
@@ -26,28 +50,28 @@ function createGameboard() {
         for (let row = 0; row < ROWS; row++) {
             let winner = checkLineWinner(getRow(row));
             if (winner !== 0) {
-                return winner;
+                return winnerFactory.createFromRow(winner, row);
             }
         }
         // Check the columns for a winner.
         for (let col = 0; col < COLS; col++) {
             let winner = checkLineWinner(getCol(col));
             if (winner !== 0) {
-                return winner;
+                return winnerFactory.createFromCol(winner, col);
             }
         }
         // Check the descending diagonal.
         let winnerDiag1 = checkLineWinner([matrix[0][0], matrix[1][1], matrix[2][2]]);
         if (winnerDiag1 !== 0) {
-            return winnerDiag1;
+            return winnerFactory.create(winnerDiag1, [0, 0], [1, 1], [2, 2]);
         }
         // Check the ascending diagonal.
         let winnerDiag2 = checkLineWinner([matrix[2][0], matrix[1][1], matrix[0][2]]);
         if (winnerDiag2 !== 0) {
-            return winnerDiag2;
+            return winnerFactory.create(winnerDiag2, [2, 0], [1, 1], [0, 2]);
         }
 
-        return EMPTY;
+        return winnerFactory.createNoResult();
     }
 
     const checkFull = () => {
@@ -192,16 +216,16 @@ function createMatch(board, player1, player2) {
     }
 
     const checkGameStatus = () => {
-        const winner = board.checkWinner();
-        if (winner !== 0) {
-            return winner;
+        const result = board.checkWinner();
+        if (result.winner !== EMPTY) {
+            return result;
         }
 
         if (board.checkFull()) {
-            return TIE;
+            return winnerFactory.createTie();
         }
 
-        return EMPTY;
+        return winnerFactory.createNoResult();
     }
 
     const doStep = () => {
@@ -249,6 +273,7 @@ function createGame(player1, player2) {
         match = createMatch(gameboard, player1, player2);
         round++;
         running = true;
+        lastResult = null;
     }
 
     const handleUserInput = (row, col) => {
@@ -259,11 +284,16 @@ function createGame(player1, player2) {
         match.handleUserInput(row, col);
         lastResult = match.doStep();
 
-        switch (lastResult) {
+        switch (lastResult.winner) {
             case PLAYER1: player1.addScore(); running = false; break;
             case PLAYER2: player2.addScore(); running = false; break;
             case TIE:     running = false; break;
-            default:      running = true;  break;
+            case EMPTY:   running = true;  break;
+
+            default:
+                console.error(`Unexpected game result: ${lastResult}`);
+                running = false;
+                break;
         }
     }
 
@@ -302,10 +332,30 @@ function createRenderer() {
             }
         });
 
-        switch (game.getLastMovementResult()) {
-            case PLAYER1: elemState.textContent = "Player 1 wins!"; break;
-            case PLAYER2: elemState.textContent = "Player 2 wins!"; break;
-            case TIE:     elemState.textContent = "Tie"; break;
+        const lastResult = game.getLastMovementResult();
+
+        if (lastResult !== null) {
+            switch (lastResult.winner)
+            {
+                case PLAYER1: elemState.textContent = `${game.getPlayer1Name()} wins!`; break;
+                case PLAYER2: elemState.textContent = `${game.getPlayer2Name()} wins!`; break;
+                case TIE:     elemState.textContent = "Tie"; break;
+            }
+
+            if (lastResult.line) {
+                lastResult.line.forEach((coord) => {
+                    const elemCell = elemBoard.querySelector(`.cell[data-row="${coord[0]}"][data-col="${coord[1]}"]`);
+                    if (elemCell) {
+                        elemCell.classList.add("win");
+                    }
+                });
+            }
+        }
+        // New rounds has no last result.
+        else {
+            elemBoard.querySelectorAll(".cell.win").forEach(cell => {
+                cell.classList.remove("win");
+            });
         }
     }
 
@@ -364,7 +414,7 @@ function createRenderer() {
         game.handleUserInput(row, col);
         renderer.syncPage(game);
 
-        if (game.getLastMovementResult() !== EMPTY) {
+        if (game.getLastMovementResult().winner !== EMPTY) {
             finish();
         }
     }
