@@ -333,6 +333,16 @@ function createRenderer() {
         return elem;
     }
 
+    const setActivePlayer = (id) => {
+        elemPlayer2Name.classList.remove("player-active", "player-winner");
+        elemPlayer1Name.classList.remove("player-active", "player-winner");
+
+        switch (id) {
+            case PLAYER1: elemPlayer1Name.classList.add("player-active"); break;
+            case PLAYER2: elemPlayer2Name.classList.add("player-active"); break;
+        }
+    }
+
     const syncPage = (game) => {
         const cells = elemBoard.querySelectorAll(".cell");
 
@@ -343,15 +353,7 @@ function createRenderer() {
         elemPlayer2Name .textContent = game.getPlayer2Name();
         elemPlayer2Score.textContent = game.getPlayer2Score();
         
-        elemPlayer2Name.classList.remove("player-active", "player-winner");
-        elemPlayer1Name.classList.remove("player-active", "player-winner");
-
-        if (game.getActivePlayerId() == PLAYER1) {
-            elemPlayer1Name.classList.add("player-active");
-        } 
-        else {
-            elemPlayer2Name.classList.add("player-active");
-        }
+        setActivePlayer(game.getActivePlayerId());
         
         cells.forEach(cell => {
             const row = Number(cell.dataset.row);
@@ -373,13 +375,18 @@ function createRenderer() {
             {
                 case PLAYER1:
                     elemState.replaceChildren(createWinnerTag(game.getPlayer1Name()), " wins!");
+                    setActivePlayer(EMPTY);
                     elemPlayer1Name.classList.add("player-winner");
                     break;
                 case PLAYER2:
                     elemState.replaceChildren(createWinnerTag(game.getPlayer2Name()), " wins!");
+                    setActivePlayer(EMPTY);
                     elemPlayer2Name.classList.add("player-winner");
                     break;
-                case TIE:     elemState.replaceChildren(createTieTag()); break;
+                case TIE:
+                    elemState.replaceChildren(createTieTag()); 
+                    setActivePlayer(EMPTY);
+                    break;
             }
 
             if (lastResult.line) {
