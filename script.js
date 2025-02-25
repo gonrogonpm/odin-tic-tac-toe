@@ -486,9 +486,22 @@ const initializeGame = () => {
         return;
     }
 
+    const submit = document.querySelector("#button-play");
+    if (!submit) {
+        console.error("Button play not found");
+        return;
+    }
+
+    submit.addEventListener("click", event => 
+    {
+        form.classList.add("submitted");
+    });
+
     form.addEventListener("submit", event => 
     {
+        console.log("asd");
         event.preventDefault();
+        form.classList.remove("submitted");
 
         const data = new FormData(event.target)
         const player1Name = data.get("player-1");
