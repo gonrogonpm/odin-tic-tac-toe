@@ -411,6 +411,9 @@ function createRenderer() {
 
 
 function setup(player1, player2) {
+    const game      = createGame(player1, player2);
+    const renderer  = createRenderer();
+
     const elemBoard = document.querySelector("#board");
     if (!elemBoard) {
         console.error("Board element not found");
@@ -423,10 +426,13 @@ function setup(player1, player2) {
         return;
     }
 
-    const game = createGame(player1, player2);
-    const renderer = createRenderer();
+    const elemButtonRestart = document.querySelector("#button-restart");
+    if (!elemButtonRestart) {
+        console.error("Restart button not found");
+        return;
+    }
 
-    const start = () => {
+    const startRound = () => {
         elemBoard.addEventListener("click", handleCellClick);
         elemButtonNextRound.disabled = true;
         elemButtonNextRound.removeEventListener("click", handleNextRoundClick);
@@ -434,14 +440,18 @@ function setup(player1, player2) {
         renderer.syncPage(game);
     }
 
-    const finish = () => {
+    const finishRound = () => {
         elemBoard.removeEventListener("click", handleCellClick);
         elemButtonNextRound.disabled = false;
         elemButtonNextRound.addEventListener("click", handleNextRoundClick);
     }
 
+    const handleRestartClick = (event) => {
+        document.querySelector("#play-dialog").showModal();
+    }
+
     const handleNextRoundClick = event => {
-        start();
+        startRound();
     }
 
     const handleCellClick = event => {
@@ -457,11 +467,12 @@ function setup(player1, player2) {
         renderer.syncPage(game);
 
         if (game.isRoundFinished()) {
-            finish();
+            finishRound();
         }
     }
 
-    start();
+    elemButtonRestart.addEventListener("click", handleRestartClick);
+    startRound();
 };
 
 /**
