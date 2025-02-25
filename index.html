@@ -7,31 +7,41 @@
     <title>Tic Tac Toe</title>
 </head>
 <body>
-    <!--dialog class="modal" open>
+    <dialog id="play-dialog" class="modal" open>
+        <div class="logo">
+            <img src="images/logo.svg" alt="logo" width="40" height="40">
+            <h1>TIC TAC TOE</h1>
+        </div>
         <div class="content">
-            <form>
-                <div>
-                    Player 1
-                    <input type="text">
+            <h2>New Game</h2>
+            <form id="form-play" method="post">
+                <div class="inputs">
+                    <div>
+                        <label for="form-player-1">
+                            <img src="images/o.svg" width="10" height="10" alt="symbol o">
+                            Player 1
+                        </label>
+                        <input type="text" name="player-1" id="form-player-1" placeholder="Player 1 Name" required>
+                    </div>
+                    <div>
+                        <label for="form-player-2">
+                            <img src="images/x.svg" width="10" height="10" alt="symbol x">
+                            Player 2
+                        </label>
+                        <input type="text" name="player-2" id="form-player-2" placeholder="Player 2 Name" required>
+                    </div>
                 </div>
-                <div>
-                    Player 2
-                    <input type="text">
-                </div>
-                <div>
-                    <button type="submit">
+                <div class="controls">
+                    <button id="button-play" type="submit" class="play">
                         Play
                     </button>
                 </div>
             </form>
         </div>
-    </dialog-->
+    </dialog>
     <div class="main">
         <div class="logo">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30">
-                <title>logo</title>
-                <path d="M10,4V8H14V4H10M16,4V8H20V4H16M16,10V14H20V10H16M16,16V20H20V16H16M14,20V16H10V20H14M8,20V16H4V20H8M8,14V10H4V14H8M8,8V4H4V8H8M10,14H14V10H10V14M4,2H20A2,2 0 0,1 22,4V20A2,2 0 0,1 20,22H4C2.92,22 2,21.1 2,20V4A2,2 0 0,1 4,2Z" />
-            </svg>
+            <img src="images/logo.svg" alt="logo" width="40" height="40">
             <h1>TIC TAC TOE</h1>
         </div>
         <div class="game-state">
@@ -43,7 +53,7 @@
                 <img src="images/o.svg" width="40" height="40">
             </div>
             <div id="player-1-name" class="player-name player-left">
-                Tomahack
+                &nbsp;
             </div>
             <div class="player-score">
                 <div class="title">score</div>
@@ -66,7 +76,7 @@
                 <img src="images/x.svg" width="40" height="40">
             </div>
             <div id="player-2-name" class="player-name player-right">
-                Mark
+                &nbsp;
             </div>
             <div class="player-score">
                 <div class="title">score</div>

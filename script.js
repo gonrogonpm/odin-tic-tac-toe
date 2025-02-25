@@ -410,7 +410,7 @@ function createRenderer() {
 };
 
 
-(function setup() {
+function setup(player1, player2) {
     const elemBoard = document.querySelector("#board");
     if (!elemBoard) {
         console.error("Board element not found");
@@ -423,8 +423,6 @@ function createRenderer() {
         return;
     }
 
-    const player1 = createHumanPlayer(PLAYER1, "Foo");
-    const player2 = createHumanPlayer(PLAYER2, "Bar");
     const game = createGame(player1, player2);
     const renderer = createRenderer();
 
@@ -464,4 +462,35 @@ function createRenderer() {
     }
 
     start();
-})();
+};
+
+/**
+ * Initializes the game by setting up the form submission event listener.
+ * Retrieves the player names from the form and starts the game.
+ */
+const initializeGame = () => {
+    const form = document.querySelector("#form-play");
+    if (!form) {
+        console.error("Form to start game not found");
+        return;
+    }
+
+    form.addEventListener("submit", event => 
+    {
+        event.preventDefault();
+
+        const data = new FormData(event.target)
+        const player1Name = data.get("player-1");
+        const player2Name = data.get("player-2");
+
+        try {
+            setup(createHumanPlayer(PLAYER1, player1Name), createHumanPlayer(PLAYER2, player2Name));
+            document.querySelector("#play-dialog").close();
+        }
+        catch (error) {
+            console.error("Error initializing game: ", error);
+        }
+    });
+};
+
+initializeGame();
