@@ -1,21 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
+/* Variables */
 :root {
+    /* Colors */
     --color: #d1d7e0;
-    --accent: #c49737;
     --disabled: #434d5a;
     --background: rgb(21, 27, 35);
     --background-modal: rgb(21, 27, 35, 0.5);
-    --buttons-radius: 10px;
     --success: #4c9e52;
     --failure: #e5534b;
-    --card-gap: 20px;
-    --card-radius: 10px;
+    --hightlight-color: #c49737;
+    --winning-color: var(--success);
+    --lossing-color: var(--failure);
     --card-color: #d1d7e0;
     --card-border: #30363d;
     --card-background: #212830;
+    /* Spacing */
+    --card-gap: 20px;
+    --card-radius: 10px;
+    --buttons-radius: 10px;
+    /* Font */
+    --base-font-size: 16px;
+    --font-family: "Roboto", sans-serif;
 }
 
+/* Base styles */
 * {
     padding: 0;
     margin: 0;
@@ -24,11 +33,12 @@
 
 html {
     background-color: var(--background);
-    font-family: "Roboto", sans-serif;
-    font-size: 16px;
+    font-family: var(--font-family);
+    font-size: var(--base-font-size);
     color: var(--color);
 }
 
+/* Input styles */
 input {
     background-color: var(--card-background);
     border: 1px solid var(--card-border);
@@ -46,6 +56,7 @@ input:focus {
     border: 1px solid var(--failure);
 }
 
+/* Button styles */
 button {
     background-color: var(--card-background);
     border: 1px solid var(--card-border);
@@ -56,22 +67,20 @@ button {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    cursor: pointer;
 }
 
 button:hover {
     background-color: var(--card-hover);
-    cursor: pointer;
 }
 
 button:disabled {
     color: var(--disabled);
-}
-
-button:disabled:hover {
     background-color: var(--card-background);
-    cursor:auto;
+    cursor: auto;
 }
 
+/* Layout */
 .main {
     max-width: calc(600px + 2rem);
     margin: auto;
@@ -80,7 +89,8 @@ button:disabled:hover {
     gap: 1rem;
 }
 
-.logo {
+/* Logo */
+.game-logo {
     margin-top: 1rem;
     grid-column: 2 / 3;
     display: flex;
@@ -93,17 +103,18 @@ button:disabled:hover {
     border-radius: var(--card-radius);
 }
 
-.logo svg {
+.game-logo svg {
     fill: var(--color);
     width: 2.5rem;
     height: 2.5rem;
     aspect-ratio: 1;
 }
 
-.logo h1 {
+.game-logo h1 {
     text-align: center;
 }
 
+/* Game state */
 .game-state {
     grid-column: 2 / 3;
     border: 1px solid var(--card-border);
@@ -131,31 +142,18 @@ button:disabled:hover {
 }
 
 .game-state .state em.turn {
-    color: var(--accent);
+    color: var(--hightlight-color);
 }
 
 .game-state .state em.winner {
-    color: var(--success);
+    color: var(--winning-color);
 }
 
 .game-state .state em.tie {
-    color: var(--failure);
+    color: var(--lossing-color);
 }
 
-#player-1 {
-    grid-column: 1 / 2;
-    grid-row-start: 3;
-    writing-mode: sideways-lr;
-    justify-content: center;
-}
-
-#player-2 {
-    grid-column: 3 / 4;
-    grid-row-start: 3;
-    writing-mode: sideways-rl;
-    justify-content: center;
-}
-
+/* Players areas */
 .player-area {
     --player-font-size: max(20px, min(5vw, 38px));
     display: flex;
@@ -209,11 +207,11 @@ button:disabled:hover {
 }
 
 .player-active {
-    color: var(--accent);
+    color: var(--hightlight-color);
 }
 
 .player-winner {
-    color: var(--success);
+    color: var(--winning-color);
 }
 
 .player-score .title, .player-score .value {
@@ -234,6 +232,7 @@ button:disabled:hover {
     font-size: calc(var(--player-font-size) * 0.8);
 }
 
+/* Board */
 #board {
     grid-column: 2 / 3;
     width: 100%;
@@ -262,7 +261,7 @@ button:disabled:hover {
 }
 
 .win {
-    border: 1px solid var(--success);
+    border: 1px solid var(--winning-color);
 }
 
 .main .controls {
@@ -280,6 +279,7 @@ button:disabled:hover {
     text-transform: uppercase;
 }
 
+/* Modal */
 .modal {
     position: fixed;
     top: 0;
@@ -292,7 +292,7 @@ button:disabled:hover {
     color: var(--card-color);
 }
 
-.modal .logo {
+.modal .game-logo {
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
